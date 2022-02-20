@@ -12,10 +12,10 @@ ReactDOM.render(
   <HashRouter basename="" >
     <React.StrictMode>
       <Routes>
-        <Route path="/" element={<Login/>} />
-        <Route path="/login" element={<Login/>} />
-        <Route path="/room" element={<Menu/>} />
-        <Route path="/register" element={<Register/>} />
+        <Route path="/" element={<Login />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/menu" element={<Menu />} />
+        <Route path="/register" element={<Register />} />
       </Routes>
     </React.StrictMode>
   </HashRouter>,

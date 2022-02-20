@@ -8,22 +8,22 @@ const Login: React.FC<{}> = () => {
     const history = useNavigate();
     const handleChange = (type: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
         // console.log(event.target.value);
-        if(type === 'username')
+        if (type === 'username')
             setUserName(event.target.value);
         else
             setPassword(event.target.value);
     }
     const handleLogin = () => {
         console.log('send ' + username);
-        const param = {username, password};
+        const param = { username, password };
         axios.post('/api/login', param).then(response => {
             console.log(response);
             console.log('login res', response.data);
-            if(response.data === '') {
+            if (response.data === '') {
                 alert('账号或密码错误!');
                 return;
             }
-            history('/Menu');
+            history('/menu');
         }).catch(error => {
             console.log(error);
         })
