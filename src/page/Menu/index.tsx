@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
+import{ io } from 'socket.io-client';
 import axios from "axios";
+
+const socket = io('http://localhost:3020/room');
 
 const Menu: React.FC<{}> = () => {
 
@@ -15,10 +18,13 @@ const Menu: React.FC<{}> = () => {
 
     const handleJoinRoom = () => {
         console.log('join');
+        console.log(socket);
+        socket.emit('event', { data: '1234234243' }, (data: any) => console.log(data));
     }
 
     const handleCreateRoom = () => {
         console.log('create');
+        socket.emit('message', { data: 'this is data', value: 123 }, (data: any) => console.log(data));
     }
 
     return <>
