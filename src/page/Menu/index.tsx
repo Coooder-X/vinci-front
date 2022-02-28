@@ -7,6 +7,10 @@ socket.on('broadcast', (data: any) => {
     console.log('rec 广播', data);
 })
 
+socket.on('test', (data: any) => {
+    console.log('test response', data);
+})
+
 const Menu: React.FC<{}> = () => {
 
     const [roomId, setRoomId] = useState('');
@@ -48,7 +52,15 @@ const Menu: React.FC<{}> = () => {
 
     const handleCreateRoom = () => {
         console.log('create');
-        socket.emit('createRoom', { roomName: newRoomId }, (data: any) => console.log(data));
+        socket.emit('createRoom', { roomName: newRoomId }, (data: any) => {
+            if (data) {
+                alert('创建成功');
+            } else {
+                console.log(data);
+                alert('创建失败，请换一个房间名');
+            }
+            console.log(data);
+        });
     }
 
     return <>

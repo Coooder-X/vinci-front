@@ -40,7 +40,7 @@ const Login: React.FC<{}> = () => {
         </div>
         <div>
             {'password'}
-            <input onChange={handleChange('password')} value={password}></input>
+            <input type="password" onChange={handleChange('password')} value={password}></input>
         </div>
         <button onClick={handleLogin}>submmit</button>
         <button onClick={handleRegister}>register</button>
