@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import axios from "axios";
 
-const socket = io('http://localhost:3020/room');
+const socket = io('http://localhost:3020');
 socket.on('broadcast', (data: any) => {
-    console.log('rec 广播', data);
+    // console.log('rec 广播', data);
+    alert(data.msg);
 })
 
 socket.on('test', (data: any) => {
