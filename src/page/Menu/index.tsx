@@ -64,11 +64,30 @@ const Menu: React.FC<{}> = () => {
         });
     }
 
+    const handleStart = () => {
+        console.log('handleStart');
+        if (!roomId || roomId === '') {
+            alert('请先加入或创建房间');
+            return;
+        }
+        socket.emit('handleStart', { roomId }, (data: any) => {
+            console.log(data);
+            if (data.enable) {
+                //  start
+            } else {
+                alert(data.msg);
+            }
+        });
+    }
+
     return <>
         <div>
             <div>
                 <input style={{ display: 'inline-block' }} value={newRoomId} onChange={handleInputNew} />
                 <button onClick={handleCreateRoom}> {'创建房间'} </button>
+            </div>
+            <div>
+                <button onClick={handleStart}> {'开始'} </button>
             </div>
             <div>
                 <input style={{ display: 'inline-block' }} value={roomId} onChange={handleInput} />
