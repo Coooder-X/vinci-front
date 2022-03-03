@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import axios from "axios";
+import RoomList from '../../component/RoomList';
+import { Button } from 'antd';
+import useUpdateRoomList from '../../utils/useUpdateRoomList';
 
 const socket = io('http://localhost:3020');
 socket.on('broadcast', (data: any) => {
@@ -16,10 +19,23 @@ const Menu: React.FC<{}> = () => {
 
     const [roomName, setRoomName] = useState('');
     const [newRoomName, setNewRoomName] = useState('');
+    const [roomList, setRoomList] = useUpdateRoomList(socket, [] as RoomInfo[]);
+    // const [roomList, setRoomList] = useState([] as RoomInfo[]);
 
     useEffect(() => {
-        socket.emit('connect-server', { data: 'new client' });
+        socket.emit('connect-server', { data: 'new client' }, (data: RoomInfo[]) => {
+            console.log(data);
+            setRoomList(data);
+        });
+        // socket.on('get-new-room-list', (data: RoomInfo[]) => {
+        //     console.log('get-new-room-list', data);
+        //     setRoomList(data);
+        // });
     }, []);
+
+    const updateRoomList = () => {
+        socket.emit('update-roomlist');
+    }
 
     const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
         e.preventDefault();
@@ -47,6 +63,7 @@ const Menu: React.FC<{}> = () => {
                 return;
             }
             console.log(data);
+            updateRoomList();
         });
     }
 
@@ -63,6 +80,7 @@ const Menu: React.FC<{}> = () => {
                 return;
             }
             console.log(data);
+            updateRoomList();
         });
     }
 
@@ -87,15 +105,16 @@ const Menu: React.FC<{}> = () => {
         <div>
             <div>
                 <input style={{ display: 'inline-block' }} value={newRoomName} onChange={handleInputNew} />
-                <button onClick={handleCreateRoom}> {'创建房间'} </button>
+                <Button onClick={handleCreateRoom}> {'创建房间'} </Button>
             </div>
             <div>
-                <button onClick={handleStart}> {'开始'} </button>
+                <Button onClick={handleStart}> {'开始'} </Button>
             </div>
             <div>
                 <input style={{ display: 'inline-block' }} value={roomName} onChange={handleInput} />
-                <button style={{ display: 'inline-block' }} onClick={handleJoinRoom}> {'加入房间'} </button>
+                <Button style={{ display: 'inline-block' }} onClick={handleJoinRoom}> {'加入房间'} </Button>
             </div>
+            <RoomList roomList={roomList}></RoomList>
         </div>
     </>
 }
