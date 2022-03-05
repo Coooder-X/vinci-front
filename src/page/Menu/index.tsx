@@ -4,6 +4,7 @@ import axios from "axios";
 import RoomList from '../../component/RoomList';
 import { Button } from 'antd';
 import useUpdateRoomList from '../../utils/useUpdateRoomList';
+import { loading, success, warning } from '../../utils/message';
 
 const socket = io('http://localhost:3020');
 socket.on('broadcast', (data: any) => {
@@ -54,14 +55,17 @@ const Menu: React.FC<{}> = () => {
         console.log('join');
         console.log(socket);
         if (!roomName || roomName === '') {
-            alert('请输入房间号')
+            warning('请输入房间号')
             return;
         }
+        const key = 'join...';
+        loading(key, key);
         socket.emit('joinRoom', roomName, (data: JoinRoomRes) => {
-            alert(data.msg);
             if (!data.success) {
+                warning(data.msg, key);
                 return;
             }
+            success(data.msg, key);
             console.log(data);
             updateRoomList();
         });
@@ -72,11 +76,13 @@ const Menu: React.FC<{}> = () => {
         const createRoomReq: CreateRoomReq = { roomName: newRoomName };
         socket.emit('createRoom', createRoomReq, (data: CreateRoomRes) => {
             //  TODO room data 存入 redux
-            alert(data.msg);
+            // alert(data.msg);
             if (data.success) {
-                ;//
+                success(data.msg);
+                //
             } else {
                 console.log(data);
+                warning(data.msg);
                 return;
             }
             console.log(data);
@@ -87,15 +93,16 @@ const Menu: React.FC<{}> = () => {
     const handleStart = () => {
         console.log('handleStart');
         if (!roomName || roomName === '') {
-            alert('请先加入或创建房间');
+            warning('请先加入或创建房间');
             return;
         }
         socket.emit('handleStart', { roomName }, (data: StartInfo) => {
             console.log(data);
-            alert(data.msg);
+            // alert(data.msg);
             if (data.enable) {
-                //  start
+                success(data.msg);//  start
             } else {
+                warning(data.msg);
                 //  error, can not start
             }
         });
