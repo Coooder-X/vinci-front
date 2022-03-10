@@ -11,19 +11,28 @@
 	margin-left: 40px;
 
 }
-.ant-divider-horizontal {
+.room-item .ant-divider-horizontal {
     margin-top: 14px;
     margin-bottom: 10px;
 }
 
-.ant-btn {
+.room-item .ant-btn {
     border-radius: 8px;
     height: 30px;
     background-color: rgb(255, 163, 42);
     border-color: rgb(255, 163, 42);
 }
 
-.ant-btn:hover {
+.room-item .ant-btn:disabled {
+    background-color: rgb(253, 190, 107);
+    border-color: rgb(253, 190, 107);
+}
+.room-item .ant-btn:disabled:hover {
+    background-color: rgb(253, 190, 107);
+    border-color: rgb(253, 190, 107);
+}
+
+.room-item .ant-btn:hover {
     border-radius: 8px;
     height: 30px;
     background-color: rgb(246, 144, 11);

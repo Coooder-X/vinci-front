@@ -5,8 +5,9 @@ import RoomList from '../../component/RoomList';
 import { Button } from 'antd';
 import useUpdateRoomList from '../../utils/useUpdateRoomList';
 import { loading, success, warning } from '../../utils/message';
+import RoomHeader from '../../component/RoomHeader';
+import socket from '../../utils/socket';
 
-const socket = io('http://localhost:3020');
 socket.on('broadcast', (data: any) => {
     // console.log('rec 广播', data);
     alert(data.msg);
@@ -121,6 +122,7 @@ const Menu: React.FC<{}> = () => {
                 <input style={{ display: 'inline-block' }} value={roomName} onChange={handleInput} />
                 <Button style={{ display: 'inline-block' }} onClick={handleJoinRoom}> {'加入房间'} </Button>
             </div>
+            <RoomHeader></RoomHeader>
             <RoomList roomList={roomList}></RoomList>
         </div>
     </>
