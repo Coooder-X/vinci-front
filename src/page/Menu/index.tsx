@@ -10,7 +10,7 @@ import socket from '../../utils/socket';
 
 socket.on('broadcast', (data: any) => {
     // console.log('rec 广播', data);
-    alert(data.msg);
+    success(data.msg);
 })
 
 socket.on('test', (data: any) => {
@@ -19,7 +19,7 @@ socket.on('test', (data: any) => {
 
 const Menu: React.FC<{}> = () => {
 
-    const [roomName, setRoomName] = useState('');
+    // const [roomName, setRoomName] = useState('');
     const [newRoomName, setNewRoomName] = useState('');
     const [roomList, setRoomList] = useUpdateRoomList(socket, [] as RoomInfo[]);
     // const [roomList, setRoomList] = useState([] as RoomInfo[]);
@@ -39,20 +39,20 @@ const Menu: React.FC<{}> = () => {
         socket.emit('update-roomlist');
     }
 
-    const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-        e.preventDefault();
-        console.log(e);
-        const input = e.target.value;
-        console.log('input =', input);
-        setRoomName(input);
-    }
+    // const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    //     e.preventDefault();
+    //     console.log(e);
+    //     const input = e.target.value;
+    //     console.log('input =', input);
+    //     setRoomName(input);
+    // }
 
-    const handleInputNew = (e: React.ChangeEvent<HTMLInputElement>) => {
-        e.preventDefault();
-        setNewRoomName(e.target.value);
-    }
+    // const handleInputNew = (e: React.ChangeEvent<HTMLInputElement>) => {
+    //     e.preventDefault();
+    //     setNewRoomName(e.target.value);
+    // }
 
-    const handleJoinRoom = () => {
+    const handleJoinRoom = (roomName: string) => {
         console.log('join');
         console.log(socket);
         if (!roomName || roomName === '') {
@@ -72,7 +72,7 @@ const Menu: React.FC<{}> = () => {
         });
     }
 
-    const handleCreateRoom = () => {
+    const handleCreateRoom = (newRoomName: string) => {
         console.log('create');
         const createRoomReq: CreateRoomReq = { roomName: newRoomName };
         socket.emit('createRoom', createRoomReq, (data: CreateRoomRes) => {
@@ -91,7 +91,7 @@ const Menu: React.FC<{}> = () => {
         });
     }
 
-    const handleStart = () => {
+    const handleStart = (roomName: string) => {
         console.log('handleStart');
         if (!roomName || roomName === '') {
             warning('请先加入或创建房间');
@@ -111,7 +111,7 @@ const Menu: React.FC<{}> = () => {
 
     return <>
         <div>
-            <div>
+            {/* <div>
                 <input style={{ display: 'inline-block' }} value={newRoomName} onChange={handleInputNew} />
                 <Button onClick={handleCreateRoom}> {'创建房间'} </Button>
             </div>
@@ -121,9 +121,9 @@ const Menu: React.FC<{}> = () => {
             <div>
                 <input style={{ display: 'inline-block' }} value={roomName} onChange={handleInput} />
                 <Button style={{ display: 'inline-block' }} onClick={handleJoinRoom}> {'加入房间'} </Button>
-            </div>
-            <RoomHeader></RoomHeader>
-            <RoomList roomList={roomList}></RoomList>
+            </div> */}
+            <RoomHeader onCreateRoom={handleCreateRoom}></RoomHeader>
+            <RoomList roomList={roomList} onJoinRoom={handleJoinRoom}></RoomList>
         </div>
     </>
 }

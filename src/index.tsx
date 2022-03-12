@@ -11,15 +11,15 @@ import { Route, HashRouter, Routes } from 'react-router-dom';
 
 ReactDOM.render(
   <HashRouter basename="" >
-    <React.StrictMode>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/menu" element={<Menu />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/test" element={<Test />} />
-      </Routes>
-    </React.StrictMode>
+    {/* <React.StrictMode> */}
+    <Routes>
+      <Route path="/" element={<Login />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/menu" element={<Menu />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/test" element={<Test />} />
+    </Routes>
+    {/* </React.StrictMode> */}
   </HashRouter>,
   document.getElementById('root')
 );

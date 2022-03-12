@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Card, List, Modal } from 'antd';
 import { io } from 'socket.io-client';
+import socket from '../../utils/socket';
 import './index.css';
-import { success, warning } from '../../utils/message';
+import { error, success, warning } from '../../utils/message';
 
-const socket = io('http://localhost:3020');
 
-const RoomHeader: React.FC<{}> = (props) => {
+const RoomHeader: React.FC<RoomHeaderProps> = (props) => {
 
 	const [isModalVisible, setIsModalVisible] = useState(false);
 	const [newRoomName, setNewRoomName] = useState('');
@@ -18,33 +18,20 @@ const RoomHeader: React.FC<{}> = (props) => {
 
 	const handleToggleCreate = () => {
 		setIsModalVisible(!isModalVisible);
+		setNewRoomName('');
 	}
 
 	const handleCancel = () => {
 		setIsModalVisible(false);
-	}
-
-	const updateRoomList = () => {
-		socket.emit('update-roomlist');
+		setNewRoomName('');
 	}
 
 	const handleCreateRoom = () => {
-		console.log('create');
-		const createRoomReq: CreateRoomReq = { roomName: newRoomName };
-		socket.emit('createRoom', createRoomReq, (data: CreateRoomRes) => {
-			//  TODO room data 存入 redux
-			// alert(data.msg);
-			if (data.success) {
-				success(data.msg);
-				//
-			} else {
-				console.log(data);
-				warning(data.msg);
-				return;
-			}
-			console.log(data);
-			updateRoomList();
-		});
+		if(newRoomName === '') {
+			error('房间名不能为空！');
+			return
+		}
+		props.onCreateRoom(newRoomName);
 	}
 
 	return (
@@ -53,16 +40,19 @@ const RoomHeader: React.FC<{}> = (props) => {
 				{'123'}
 				<Button onClick={handleToggleCreate}>{'创建房间'}</Button>
 			</div>
-			<Modal title="创建房间" visible={isModalVisible} onOk={handleCreateRoom} onCancel={handleCancel}>
+			<Modal title="创建房间" visible={isModalVisible} onOk={(handleCreateRoom)} onCancel={handleCancel}>
 				<div>
 					<label>{'房间名：'}</label>
-					<input style={{ display: 'inline-block' }} value={newRoomName} onChange={handleInputNew} />
-					{/* <Button onClick={handleCreateRoom}> {'创建房间'} </Button> */}
+					<input style={{ display: 'inline-block' }} value={newRoomName} autoFocus onChange={handleInputNew} />
 				</div>
 			</Modal>
 		</>
 	)
 
+}
+
+interface RoomHeaderProps {
+	onCreateRoom: Function;
 }
 
 export default RoomHeader;

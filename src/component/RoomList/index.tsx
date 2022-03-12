@@ -4,8 +4,10 @@ import RoomItem from '../RoomItem';
 
 const RoomList: React.FC<RoomListProps> = (props) => {
 
-	const handleClickRoom = () => {
-		alert('add');
+	const handleJoinRoom = (roomName: string) => {
+		return () => {
+			props.onJoinRoom(roomName);
+		}
 	}
 
 	return (
@@ -47,11 +49,12 @@ const RoomList: React.FC<RoomListProps> = (props) => {
 			}}>
 				{props.roomList.map(room => (
 					<RoomItem
+						key={room.name}
 						roomName={room.name}
 						roomOwnerName='player1'
 						status='preparing'
 						playerList={['asd']}
-						onJoin={handleClickRoom} />
+						onJoin={handleJoinRoom(room.name)} />
 				))}
 			</div>
 		</>
@@ -60,6 +63,7 @@ const RoomList: React.FC<RoomListProps> = (props) => {
 
 interface RoomListProps {
 	roomList: RoomInfo[];
+	onJoinRoom: Function;
 }
 
 export default RoomList;

@@ -16,7 +16,7 @@ const useUpdateRoomList = (
             console.log(data);
             setRoomList(data);
         });
-    }, []);
+    });
     return [roomList, setRoomList];
 }
 

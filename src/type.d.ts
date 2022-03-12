@@ -1,5 +1,6 @@
 interface GameRoom {
     name: string;
+    owner: Player;
     started: boolean;
     message: Map<string, string>;
     playerMap: Map<string, Player>;

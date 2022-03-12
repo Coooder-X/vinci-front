@@ -9,7 +9,7 @@ const totalNum = 4;
 const RoomItem: React.FC<RoomProps> = (props) => {
 
 	const handleJoin = () => {
-		props.onJoin();
+		props.onJoin(props.roomName);
 	}
 
 	const trans = () => {
@@ -46,7 +46,7 @@ const RoomItem: React.FC<RoomProps> = (props) => {
 					<div style={{ lineHeight: '30px', fontSize: '12px', marginRight: '5px' }}>{'玩家列表:'}</div>
 					{props.playerList.map((player: any) => {
 						return (
-							<Tooltip placement="bottom" title={player}>
+							<Tooltip placement="bottom" title={player} key={player}>
 								<Avatar className='player-advatar' size={30}>{player}</Avatar>
 							</Tooltip>
 						)
