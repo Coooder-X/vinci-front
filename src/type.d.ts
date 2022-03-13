@@ -36,4 +36,6 @@ interface RoomInfo {
     name: string;
     started: boolean;
     playerNum: number;
+    owner: Player;
+    playerLst: Player[];
 }

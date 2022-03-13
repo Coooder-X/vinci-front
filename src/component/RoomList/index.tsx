@@ -51,9 +51,9 @@ const RoomList: React.FC<RoomListProps> = (props) => {
 					<RoomItem
 						key={room.name}
 						roomName={room.name}
-						roomOwnerName='player1'
-						status='preparing'
-						playerList={['asd']}
+						roomOwnerName={room.owner.id}
+						status={room.started? 'started' : 'preparing'}
+						playerList={room.playerLst.map(player => player.id)}
 						onJoin={handleJoinRoom(room.name)} />
 				))}
 			</div>
