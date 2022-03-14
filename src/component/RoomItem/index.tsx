@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { Avatar, Badge, Button, Card, Divider, List, Space, Tooltip } from 'antd';
-import { HomeOutlined, HomeTwoTone } from '@ant-design/icons';
+import React from 'react';
+import { Avatar, Badge, Button, Divider, Space, Tooltip } from 'antd';
+import { HomeTwoTone } from '@ant-design/icons';
 import './index.css';
 // import './index.less';
 

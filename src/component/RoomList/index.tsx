@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Card, List } from 'antd';
+import React from 'react';
+// import { Card, List } from 'antd';
 import RoomItem from '../RoomItem';
 
 const RoomList: React.FC<RoomListProps> = (props) => {

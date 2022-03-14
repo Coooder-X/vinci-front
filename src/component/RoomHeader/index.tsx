@@ -1,9 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { Button, Card, Input, List, Modal } from 'antd';
-import { io } from 'socket.io-client';
-import socket from '../../utils/socket';
+import React, { useState } from 'react';
+import { Button, Input, Modal } from 'antd';
 import './index.css';
-import { error, success, warning } from '../../utils/message';
+import { error } from '../../utils/message';
 
 
 const RoomHeader: React.FC<RoomHeaderProps> = (props) => {

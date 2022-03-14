@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import RoomItem from '../../component/RoomItem';
 
 const Test: React.FC<{}> = (props) => {
@@ -17,19 +17,19 @@ const Test: React.FC<{}> = (props) => {
 					roomOwnerName='player1'
 					status='preparing'
 					playerList={['asd']}
-					onJoin={()=>{}}
+					onJoin={() => { }}
 				></RoomItem>
 				<RoomItem roomName='roomName1'
 					roomOwnerName='player2'
 					status='started'
 					playerList={['retew', 'jomm']}
-					onJoin={()=>{}}
+					onJoin={() => { }}
 				></RoomItem>
 				<RoomItem roomName='roomName2'
 					roomOwnerName='player3'
 					status='preparing'
 					playerList={['retew', 'jomm', '234', 'sadr2']}
-					onJoin={()=>{}}
+					onJoin={() => { }}
 				></RoomItem>
 			</div >
 		</div>

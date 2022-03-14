@@ -11,6 +11,8 @@ interface CreateRoomReq {
 }
 
 interface Player {
+    avatar?: any;   //  头像
+    name: string;
     id: string;
     socketId: string;
 }

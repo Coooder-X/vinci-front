@@ -1,23 +1,23 @@
 import { message } from "antd";
 
 export const success = (msg: string, key?: string) => {
-    const value = { content: msg, key, duration: 2.5 };
-    message.success(value);
+	const value = { content: msg, key, duration: 2.5 };
+	message.success(value);
 };
 
 export const warning = (msg: string, key?: string) => {
-    const value = { content: msg, key, duration: 2.5 };
-    message.warning(value);
+	const value = { content: msg, key, duration: 2.5 };
+	message.warning(value);
 };
 
 export const error = (msg: string, key?: string) => {
-    const value = { content: msg, key, duration: 2.5 };
-    message.error(value);
+	const value = { content: msg, key, duration: 2.5 };
+	message.error(value);
 };
 
 export const loading = (msg: string, key?: string) => {
-    const value = { content: msg, key, duration: 2.5 };
-    message.loading(value);
+	const value = { content: msg, key, duration: 2.5 };
+	message.loading(value);
 };
 
 // const openMessage = () => {
