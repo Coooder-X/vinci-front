@@ -1,0 +1,22 @@
+body {
+    background-color: rgb(255, 255, 255);
+}
+
+.login_item {
+    margin: auto;
+    text-align: center;
+    padding: 170px 0;
+}
+
+.user_item {
+    text-align: center;
+    margin: 25px;
+}
+
+input {
+    margin: 0 25px;
+}
+
+button {
+    margin: 0 25px;
+}
