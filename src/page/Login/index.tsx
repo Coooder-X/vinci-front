@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Button, Card } from 'antd';
 import { useAppDispatch } from '../../model';
 import { userLogin } from '../../model/userStore/thunk';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../model';
 import { getIsLogin } from '../../utils/functions';
+import './index.css';
 
 const Login: React.FC<{}> = () => {
 	const [username, setUserName] = useState('');
@@ -54,16 +56,20 @@ const Login: React.FC<{}> = () => {
 	}
 
 	return <>
-		<div>
-			{'username'}
-			<input onChange={handleChange('username')} value={username}></input>
+		<div className='login_item'>
+			<Card>
+				<div className='user_item'>
+					{'username'}
+					<input onChange={handleChange('username')} value={username}></input>
+				</div>
+				<div className='user_item'>
+					{'password'}
+					<input type="password" onChange={handleChange('password')} value={password}></input>
+				</div>
+				<Button onClick={handleLogin}>submmit</Button>
+				<Button onClick={handleRegister}>register</Button>
+			</Card>
 		</div>
-		<div>
-			{'password'}
-			<input type="password" onChange={handleChange('password')} value={password}></input>
-		</div>
-		<button onClick={handleLogin}>submmit</button>
-		<button onClick={handleRegister}>register</button>
 	</>
 }
 
