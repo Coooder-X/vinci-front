@@ -17,6 +17,11 @@ interface Player {
     socketId: string;
 }
 
+interface User {
+    username: string;
+    password: string;
+}
+
 interface StartInfo {
     msg: string;
     enable: boolean;
