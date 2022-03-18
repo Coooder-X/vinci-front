@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import RoomList from '../../component/RoomList';
 import useUpdateRoomList from '../../utils/useUpdateRoomList';
 import { loading, success, warning } from '../../utils/message';
 import RoomHeader from '../../component/RoomHeader';
+import { getIsLogin } from '../../utils/functions';
 import socket from '../../utils/socket';
 
 socket.on('broadcast', (data: any) => {
@@ -20,6 +22,15 @@ const Menu: React.FC<{}> = () => {
 	const [newRoomName, setNewRoomName] = useState('');
 	const [roomList, setRoomList] = useUpdateRoomList(socket, [] as RoomInfo[]);
 	// const [roomList, setRoomList] = useState([] as RoomInfo[]);
+
+	const history = useNavigate();
+	const isLogin = getIsLogin();
+	
+	useEffect(() => {
+		if (!isLogin) {
+			history('/login');
+		}
+	}, [isLogin]);
 
 	useEffect(() => {
 		socket.emit('connect-server', { data: 'new client' }, (data: RoomInfo[]) => {
