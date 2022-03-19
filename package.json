@@ -32,6 +32,7 @@
     "css-minimizer-webpack-plugin": "^3.4.1",
     "css-select": "^4.2.1",
     "css-what": "^5.1.0",
+    "d3": "^7.3.0",
     "dotenv": "^10.0.0",
     "dotenv-expand": "^5.1.0",
     "eslint": "^8.3.0",
@@ -157,5 +158,7 @@
       "react-app"
     ]
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@types/d3": "^7.1.0"
+  }
 }

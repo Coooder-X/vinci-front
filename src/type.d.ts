@@ -46,3 +46,8 @@ interface RoomInfo {
     owner: Player;
     playerLst: Player[];
 }
+
+interface Size {
+	width: number;
+	height: number;
+}

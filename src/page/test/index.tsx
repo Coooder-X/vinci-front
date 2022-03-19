@@ -1,4 +1,5 @@
 import React from 'react';
+import BigCardContainer from '../../component/BigCardContainer';
 import RoomItem from '../../component/RoomItem';
 
 const Test: React.FC<{}> = (props) => {
@@ -12,7 +13,7 @@ const Test: React.FC<{}> = (props) => {
 			height: '100%',
 			padding: '30px',
 		}}>
-			<div style={{ display: 'flex', flexWrap: 'wrap' }}>
+			{/* <div style={{ display: 'flex', flexWrap: 'wrap' }}>
 				<RoomItem roomName='roomName'
 					roomOwnerName='player1'
 					status='preparing'
@@ -31,7 +32,8 @@ const Test: React.FC<{}> = (props) => {
 					playerList={['retew', 'jomm', '234', 'sadr2']}
 					onJoin={() => { }}
 				></RoomItem>
-			</div >
+			</div > */}
+			<BigCardContainer></BigCardContainer>
 		</div>
 	)
 }
