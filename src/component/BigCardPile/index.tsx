@@ -1,96 +1,81 @@
 import React, { useEffect, useState } from 'react';
+import pubsub from 'pubsub-js';
 import * as d3 from "d3";
 
 const gap = 10;
-const cardSize: Size = {
-	width: 60,
-	height: 100
-}
-const size: Size = {
-	width: 1000,
-	height: 180
-}
+type Svg = d3.Selection<SVGSVGElement, unknown, HTMLElement, any>;
 
-// let svg: d3.Selection<SVGSVGElement, unknown, HTMLElement, any> = d3.select("#cardPanel").append("svg").attr("viewBox", [0, 0, size.width, size.height]);
-let svg: d3.Selection<SVGSVGElement, unknown, HTMLElement, any> = d3.select('body');
 const BigCardPile: React.FC<BigCardPileProps> = (props) => {
 
-	// let svg: any = {};
-	const [posList, setPosList] = useState(([] as Object[]));
+	const { svg, cardSize, pileSize, cardPile, newIndex, getNewCardSvg } = props;
+	const [cardSvgLst, setCardSvgLst] = useState([] as Svg[]);
 
-	useEffect(() => {
-		const div = d3.select("#cardPanel");
-		svg = div.append("svg").attr("viewBox", [0, 0, size.width, size.height]);
-		// svg.
-		// 	append('rect')
-		// 	.attr('width', size.width)
-		// 	.attr('height', size.height)
-		// 	.attr("fill", '#FFFFFF')
-		// 	.attr('x', 0).attr('y', 0);
-	}, []);
+	const moveCard = (cardSvg: Svg, x: number) => {
+		cardSvg
+			.transition() // 启动过渡效果，链式调用
+			.duration(500)
+			.attr('transform', `translate(${0}, ${-1.4 * cardSize.height})`)	//g 标签移动只能用 transfrom，直接改 x 无效
+			.ease(d3['easeCubicInOut'])
+			.transition()
+			.duration(500)
+			.attr('transform', `translate(${x}, ${-1.4 * cardSize.height})`)	// - parseInt(cardSvg.attr('x'))
+			.ease(d3['easeCubicInOut'])
+			.transition()
+			.duration(800)
+			.attr('transform', `translate(${x}, ${0})`);	//	transform 参数值是相对于最初的的坐标的
+	}
 
-	useEffect(() => {
-		const newCard = props.getNewCard();
-		newCard.select('rect').attr('fill', 'red').attr('x', 200);
-		// console.log('newcard', newCard.select('rect'));
-		
+	const insertCard = () => {
+		const newCardSvg = getNewCardSvg();	//	获得新摸的牌的 svg g标签对象
+		let tmplst = cardSvgLst;
+		tmplst.splice(newIndex, 0, newCardSvg);
+		setCardSvgLst(tmplst);	//	更新牌堆 svg g标签数组
 
-		const totalWidth = props.cardPile.length * cardSize.width + (props.cardPile.length - 1) * gap;
-		const beginX = size.width / 2 - totalWidth / 2;
-		const data = props.cardPile.map((num, index) => {
-			return { num: num, x: beginX + index * (gap + cardSize.width) };
-		})
-		// console.log('123', data);
-		
-		svg
-			.selectAll('rect')
-				.data(data)
-				.join('rect')
-				.attr('width', cardSize.width)
-				.attr('height', cardSize.height)
-				.attr("fill", '#000000')
-				.attr('x', d => d.x).attr('y', 0);
+		if (newCardSvg) {
+			console.log('newCard');
+		} else return;
+		const totalWidth = cardPile.length * cardSize.width + (cardPile.length - 1) * gap;
+		const beginX = cardSize.width + gap * 2 + pileSize.width / 2 - totalWidth / 2;
+		const posList = cardPile.map((num, index) => {	//	所有牌（包括新牌）的位置数组
+			return beginX + index * (gap + cardSize.width);
+		});
 
-		svg
-			.selectAll('text')
-				.data(data)
-				.join('text')
-				.attr('font-size', '55px')
-				.attr('font-weight', 'bold')
-				.attr("x", d => d.x + cardSize.width / 2)
-				.attr("y", 65)
-				.attr("fill", 'white')
-				.attr("text-anchor", "middle")
-				.text(d => d.num);
+		if (cardPile.length === 1) {
+			moveCard(newCardSvg, beginX);	//	牌堆没有牌，直接移动到中间
+		} else {
+			for (let i = 0; i < cardPile.length; ++i) {
+				if (i === newIndex) 
+					continue;
+				//	每个已存在的牌移动让位
+				cardSvgLst[i]
+					.transition()
+					.duration(800)
+					.attr('transform', `translate(${posList[i]}, ${0})`)
+					.ease(d3['easeCubicInOut']);
+			}
+			moveCard(newCardSvg, posList[newIndex]);	//	最后插入新摸的牌
+		}
+	}
 
-	}, [props.cardPile]);
-
-	useEffect(() => {
-		// console.log(props.newNum);
-		// console.log(props.getNewCard());
+	//	依赖牌堆对象，每次摸牌使牌堆更新时，重新发布 insert 函数，才能保证 getNewCardSvg 获得最新摸的牌
+	useEffect(() => {	
+		pubsub.subscribe('insertCard', insertCard);
 	}, [props.cardPile]);
 
 	return (
 		<>
-			<div>
-				{props.cardPile}
-			</div>
-			<div>
-				{props.newNum + ', ' + props.newIndex}
-			</div>
-			<div id='cardPanel'>
-
-			</div>
 		</>
 	);
 }
 
 interface BigCardPileProps {
-	cardPile: string[];
-	newNum?: string | undefined;
-	newIndex?: number | undefined;
-	getNewCard: Function;
-	newCard: any//d3.Selection<SVGSVGElement, unknown, HTMLElement, any>
-}//d3.Selection<SVGSVGElement, unknown, HTMLElement, any>
+	svg: Svg;
+	cardPile: Card[];
+	cardSize: Size;
+	pileSize: Size;
+	newIndex: number;
+	getNewCardSvg: Function;
+	newCard: Card;
+}
 
 export default BigCardPile;

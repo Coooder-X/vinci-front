@@ -1,3 +1,4 @@
+type Svg = d3.Selection<SVGSVGElement, unknown, HTMLElement, any>;
 interface GameRoom {
     name: string;
     owner: Player;
@@ -50,4 +51,9 @@ interface RoomInfo {
 interface Size {
 	width: number;
 	height: number;
+}
+
+interface Card {
+    num: string;
+    isBlack: Boolean;
 }

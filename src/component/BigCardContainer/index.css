@@ -1,14 +1,20 @@
 .big-card-container {
     position: absolute;
-    width: 80%;
-    height: 200px;
-    background-color: antiquewhite;
-    border: 1px solid black;
-    border-radius: 10px;
+    width: 90%;
+    height: 22%;
+    /* height: 180px; */
+    background-color: transparent;
+    /* border: 1px solid black;
+    border-radius: 10px; */
     left: 50%;
     bottom: 20px;
     transform: translateX(-50%);
 }
+
+/* .svg {
+    width: 100%;
+    height: 100%;
+} */
 
 .new-card-container {
     position: absolute;
