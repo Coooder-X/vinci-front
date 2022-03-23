@@ -9,6 +9,12 @@ interface GameRoom {
 
 interface CreateRoomReq {
     roomName: string;
+    owner: Player | undefined;
+}
+
+interface JoinRoomReq {
+    roomName: string;
+    player: Player | undefined;
 }
 
 interface Player {
@@ -38,6 +44,11 @@ interface CreateRoomRes {
     room?: GameRoom;
     msg: string;
     success: boolean;
+}
+
+interface LaveRoomReq {
+    player: Player;
+    room: GameRoom;
 }
 
 interface RoomInfo {

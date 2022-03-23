@@ -1,10 +1,10 @@
 import { UserState } from "../model/userStore";
 
-export const getCurUser = (): UserState | null => {
+export const getCurUser = (): Player | undefined => {
     let curUserStr: string | undefined = sessionStorage.getItem('userState') || undefined;
     if (!curUserStr)
-        return null;
-    return JSON.parse(curUserStr);
+        return undefined;
+    return JSON.parse(curUserStr).player;
 }
 
 export const getIsLogin = (): Boolean => {

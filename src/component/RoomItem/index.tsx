@@ -39,7 +39,7 @@ const RoomItem: React.FC<RoomProps> = (props) => {
 						size='small'
 						onClick={handleJoin}
 						disabled={props.playerList.length === totalNum ? true : props.status === 'preparing' ? false : true}>
-						{'加入游戏'}
+						{'加入房间'}
 					</Button>
 				</div>
 				<div className='player-list'>

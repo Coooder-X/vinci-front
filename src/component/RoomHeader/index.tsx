@@ -49,7 +49,7 @@ const RoomHeader: React.FC<RoomHeaderProps> = (props) => {
 	return (
 		<>
 			<div className='room-header'>
-				{ curUser? curUser.player.name : '' }
+				{ curUser? curUser.name : '' }
 				<Button onClick={handleToggleCreate}>{'创建房间'}</Button>
 				<Button onClick={handleLogout}>{'退出登陆'}</Button>
 			</div>

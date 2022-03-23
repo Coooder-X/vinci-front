@@ -43,6 +43,7 @@ const RoomList: React.FC<RoomListProps> = (props) => {
 				// backgroundColor: '#fff17e',
 				display: 'flex',
 				flexWrap: 'wrap',
+				alignContent: 'flex-start',
 				width: '100%',
 				height: '100%',
 				padding: '30px',
