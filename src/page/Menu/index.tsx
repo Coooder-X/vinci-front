@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import RoomList from '../../component/RoomList';
 import useUpdateRoomList from '../../utils/useUpdateRoomList';
 import { loading, success, warning } from '../../utils/message';
@@ -24,7 +24,7 @@ const Menu: React.FC<{}> = () => {
 	const history = useNavigate();
 	const isLogin = getIsLogin();
 	const self = getCurUser();
-	
+
 	useEffect(() => {
 		if (!isLogin) {
 			history('/login');
@@ -44,7 +44,11 @@ const Menu: React.FC<{}> = () => {
 		socket.on('broadcast', (data: any) => {	//	仅注册一次的函数，写在这个hook中，不可写在全局，否则会注册多次
 			// console.log('rec 广播', data);
 			success(data.msg);
-		})
+		});
+		socket.on('game-start', (data: any) => {
+			success(data.msg);
+			history(`/game/${data.roomName}`,{replace: true});
+		});
 		// socket.on('get-new-room-list', (data: RoomInfo[]) => {
 		//     console.log('get-new-room-list', data);
 		//     setRoomList(data);
@@ -124,24 +128,6 @@ const Menu: React.FC<{}> = () => {
 		});
 	}
 
-	const handleStart = (roomName: string) => {
-		console.log('handleStart');
-		if (!roomName || roomName === '') {
-			warning('请先加入或创建房间');
-			return;
-		}
-		socket.emit('handleStart', { roomName }, (data: StartInfo) => {
-			console.log(data);
-			// alert(data.msg);
-			if (data.enable) {
-				success(data.msg);//  start
-			} else {
-				warning(data.msg);
-				//  error, can not start
-			}
-		});
-	}
-
 	return <>
 		<div>
 			{/* <div>
@@ -155,6 +141,7 @@ const Menu: React.FC<{}> = () => {
                 <input style={{ display: 'inline-block' }} value={roomName} onChange={handleInput} />
                 <Button style={{ display: 'inline-block' }} onClick={handleJoinRoom}> {'加入房间'} </Button>
             </div> */}
+			{/* <Link to={`/game/${myRoom?.name}`}></Link> */}
 			<RoomHeader onCreateRoom={handleCreateRoom}></RoomHeader>
 			<RoomList roomList={roomList} onJoinRoom={handleJoinRoom}></RoomList>
 			<RoomPanel visible={roomPanelVsb} room={myRoom} onLeave={handleLeave}></RoomPanel>

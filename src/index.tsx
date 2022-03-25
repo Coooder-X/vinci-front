@@ -7,6 +7,7 @@ import Login from './page/Login';
 import Register from './page/Register';
 import Menu from './page/Menu';
 import Test from './page/test';
+import GamePage from './component/GamePage';
 import { Route, HashRouter, Routes } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { createStore } from './model';
@@ -22,6 +23,7 @@ ReactDOM.render(
         <Route path="/login" element={<Login />} />
         <Route path="/menu" element={<Menu />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/game/:roomName" element={<GamePage />} />
         <Route path="/test" element={<Test />} />
       </Routes>
       {/* </React.StrictMode> */}

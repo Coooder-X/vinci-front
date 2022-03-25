@@ -3,8 +3,23 @@ interface GameRoom {
     name: string;
     owner: Player;
     started: boolean;
+    readyNum: number;
     message: Map<string, string>;
     playerMap: Map<string, Player>;
+}
+
+interface GameRoomSerializ {
+    name: string;
+    owner: Player;
+    started: boolean;
+    readyNum: number;
+    message: Array<Message>;
+    playerLst: Array<Player>;
+}
+
+interface Message {
+    playerName: string;
+    msg: string;
 }
 
 interface CreateRoomReq {
@@ -51,6 +66,12 @@ interface LaveRoomReq {
     room: GameRoom;
 }
 
+interface StartReq {
+    roomName: string;
+    isOwner: boolean;
+    ready: boolean;
+}
+
 interface RoomInfo {
     name: string;
     started: boolean;
@@ -60,8 +81,8 @@ interface RoomInfo {
 }
 
 interface Size {
-	width: number;
-	height: number;
+    width: number;
+    height: number;
 }
 
 interface Card {
