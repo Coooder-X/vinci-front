@@ -4,6 +4,7 @@ import BigCardPile from '../BigCardPile';
 import * as d3 from 'd3';
 import pubsub from 'pubsub-js';
 import './index.css';
+import socket from '../../utils/socket';
 
 let svg: d3.Selection<SVGSVGElement, unknown, HTMLElement, any> = d3.select('body');
 const svgW = window.innerWidth || document.documentElement.clientWidth || document.getElementsByTagName('body')[0].clientWidth;
@@ -29,7 +30,8 @@ const BigCardContainer: React.FC<{}> = (props) => {
 	const [newIndex, setNewIndex] = useState(0);
 	const [newCard, setNewCard] = useState({ num: '', isBlack: true } as Card);
 	const [newCardSvg, setNewCardSvg] = useState(svg as any);
-	// const [tmpCardQue, setTmpCardQue] = useState([] as any);
+	const [tmpCardQue, setTmpCardQue] = useState([] as any);
+	const [svgCardLst, setSvgCardLst] = useState([] as SvgCard[]);
 
 	useEffect(() => {
 		const div = d3.select("#CardPanel");
@@ -165,6 +167,7 @@ const BigCardContainer: React.FC<{}> = (props) => {
 			.attr("x", () => newcard.num.length === 1 ? cardSize.width / 2 + padding : cardSize.width / 2)
 			.attr("y", beginY + (cardSize.height - fontSize1) / 2 + fontSize1 - 12)
 			.attr("fill", !newcard.isBlack ? 'white' : 'black')
+			.attr('stroke', !newcard.isBlack ? 'white' : 'black')
 			.transition()
 			.duration(100)
 			.attr("fill", newcard.isBlack ? 'white' : 'black')
@@ -175,15 +178,17 @@ const BigCardContainer: React.FC<{}> = (props) => {
 
 		setNewCardSvg(g);
 		// setTmpCardQue([...tmpCardQue, g]);
-		// console.log('tmp', tmpCardQue);
+		setTmpCardQue(() => [...tmpCardQue, g]);
+		console.log('tmp', tmpCardQue);
 
 	}
 
 	// const getNewCardSvg = () => {	//	返回新摸的牌的 svg g标签对象
+	// 	console.log('tmpque', tmpCardQue);
+		
 	// 	if (tmpCardQue.length) {
-	// 		console.log('yes');
-
-	// 		const tail = tmpCardQue[-1];
+	// 		const tail = tmpCardQue[0];
+	// 		console.log('yes, tail = ', tail);
 	// 		const tmp = tmpCardQue;
 	// 		tmp.shift();
 	// 		setTmpCardQue(tmp);
@@ -201,12 +206,12 @@ const BigCardContainer: React.FC<{}> = (props) => {
 		return newCardG;
 	}, [cardPile]);
 
-	const handleGetCard = (isBlack: boolean) => {
-		let num = Math.floor(Math.random() * 13).toString();
-		num = num === '12' ? '-' : num;
+	const handleGetCard = (num: string, isBlack: boolean) => {
+		// let num = Math.floor(Math.random() * 13).toString();
+		// num = num === '12' ? '-' : num;
 		const newcard: Card = { num: num, isBlack };
 		// createNewCardSvg(newcard);
-		setNewCard(newcard);
+		setNewCard(() => newcard);
 		console.log('newcard', newcard);
 
 		const tmp = [...cardPile, newcard].sort((a, b) => { //	数字升序，黑在白前
@@ -217,12 +222,14 @@ const BigCardContainer: React.FC<{}> = (props) => {
 				return a.isBlack ? -1 : 1;
 			return an - bn;
 		});
-		setCardPile(tmp);
+		setCardPile(() => tmp);
+		console.log('牌堆', tmp);
+		
 		console.log('tmp', tmp.length, 'pile', cardPile.length, 'newCard', newCard);
 
 		for (let i = 0; i < tmp.length; ++i) {
 			if (tmp[i].num === num && tmp[i].isBlack === newcard.isBlack) {
-				setNewIndex(i);
+				setNewIndex(() => i);
 				break;
 			}
 		}
@@ -260,18 +267,32 @@ const BigCardContainer: React.FC<{}> = (props) => {
 			.ease(d3['easeCubicInOut'])
 
 		// handleGetCard(color === 'black');
+		socket.emit('handleGetNum', (data: string) => {
 
-		setTimeout(() => {
-			g.remove();
-			handleGetCard(color === 'black');
-			//	之前是测试的mock，但现在要把修改cardPile的逻辑提上来，否则在setTimeOut里还是之前的状态，拿不到最新的g标签
-			//	setNewCard、setCardPile 提到本函数做, getCard 函数废弃，因为本函数是真正从后端拿数据的函数
-			// handleGetCard(color === 'black');
-			// setTimeout(() => {
-			// 	//	insert 逻辑这里不该有，应该是猜牌结束后的逻辑
-			// 	handleInsert();
-			// }, 500)
-		}, 1000);
+			setTimeout(() => {
+				g.remove();
+				console.log('data', data);
+				handleGetCard(data, color === 'black');
+				// handleGetCard(color === 'black');
+				//	之前是测试的mock，但现在要把修改cardPile的逻辑提上来，否则在setTimeOut里还是之前的状态，拿不到最新的g标签
+				//	setNewCard、setCardPile 提到本函数做, getCard 函数废弃，因为本函数是真正从后端拿数据的函数
+				// handleGetCard(color === 'black');
+				// setTimeout(() => {
+				// 	//	insert 逻辑这里不该有，应该是猜牌结束后的逻辑
+				// 	handleInsert();
+				// }, 500)
+			}, 1000);
+		})
+
+	}
+
+	useEffect(() => {
+		console.log({ newCard, newIndex, cardPile });
+		handleGet(newCard, newIndex, cardPile, tmpCardQue);
+	}, [tmpCardQue])//newCard, newIndex, cardPile, 
+
+	const handleGet = (card: Card, index: number, cardPile: Card[], tmpCardQue: []) => {
+		pubsub.publish('getInfo', { card, index, cardPile, tmpCardQue });
 	}
 
 	const handleInsert = () => {
@@ -349,6 +370,12 @@ const cardDivStyple = {
 	left: '50%',
 	top: '50%',
 	cursor: 'pointer',
+}
+
+interface SvgCard {
+	index: number;
+	card: Card;
+	cardSvg: any;
 }
 
 export default BigCardContainer;
