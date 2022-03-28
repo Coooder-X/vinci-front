@@ -27,11 +27,7 @@ const pileSize: Size = {
 const BigCardContainer: React.FC<{}> = (props) => {
 
 	const [cardPile, setCardPile] = useState([] as Card[]);
-	const [newIndex, setNewIndex] = useState(0);
-	const [newCard, setNewCard] = useState({ num: '', isBlack: true } as Card);
-	const [newCardSvg, setNewCardSvg] = useState(svg as any);
-	const [tmpCardQue, setTmpCardQue] = useState([] as any);
-	const [svgCardLst, setSvgCardLst] = useState([] as SvgCard[]);
+	const [tmpCardSvgLst, setTmpCardSvgLst] = useState([] as SvgCard[]);
 
 	useEffect(() => {
 		const div = d3.select("#CardPanel");
@@ -95,51 +91,7 @@ const BigCardContainer: React.FC<{}> = (props) => {
 		// 	})
 	}, []);
 
-	// useEffect(() => {
-	// 	d3.select('#blackPile').on('click', () => {
-	// 		handleGainCard('black');
-	// 	})
-	// })
-
-	// useEffect(() => {
-	// 	if (newCard.num === '')
-	// 		return;
-
-	// 	const g = svg
-	// 		.append('g')
-	// 		.attr('x', (containerH - cardSize.height) / 2)	//	g 标签赋予和卡牌相同的起始位置，以便使用transform移动
-	// 		.attr('y', beginY);
-	// 	g
-	// 		.append('rect')
-	// 		.attr('width', cardSize.width)
-	// 		.attr('height', cardSize.height)
-	// 		.attr("fill", newCard.isBlack ? 'black' : 'white')
-	// 		.attr('stroke-width', '1px')
-	// 		.attr('stroke', 'black')
-	// 		.attr('rx', 5)
-	// 		.attr('ry', 5)
-	// 		.attr('x', (containerH - cardSize.height) / 2)
-	// 		.attr('y', beginY)
-	// 	g
-	// 		.append('text')
-	// 		.attr('font-size', () => newCard.num.length > 1 ? fontSize2 : fontSize1)
-	// 		.attr('font-weight', 'bold')
-	// 		.attr('text-decoration', 'underline')
-	// 		.attr("x", () => newCard.num.length === 1 ? cardSize.width / 2 + padding : cardSize.width / 2)
-	// 		.attr("y", beginY + (cardSize.height - fontSize1) / 2 + fontSize1 - 12)
-	// 		.attr("fill", !newCard.isBlack ? 'white' : 'black')
-	// 		.transition()
-	// 		.duration(100)
-	// 		.attr("fill", newCard.isBlack ? 'white' : 'black')
-	// 		.attr('stroke-width', '1px')
-	// 		.attr('stroke', 'black')
-	// 		.attr("text-anchor", "start")
-	// 		.text(newCard.num);
-
-	// 	setNewCardSvg(g);
-	// }, [newCard]);
-
-	const createNewCardSvg = (newcard: Card) => {
+	const createNewCardSvg = (newcard: Card, newIndex: number) => {
 		console.log('createNewCardSvg', newcard.num === '');
 		if (newcard.num === '')
 			return;
@@ -176,42 +128,16 @@ const BigCardContainer: React.FC<{}> = (props) => {
 			.attr("text-anchor", "start")
 			.text(newcard.num);
 
-		setNewCardSvg(g);
-		// setTmpCardQue([...tmpCardQue, g]);
-		setTmpCardQue(() => [...tmpCardQue, g]);
-		console.log('tmp', tmpCardQue);
-
+		const newTmpCard: SvgCard = {
+			card: newcard,
+			index: newIndex,
+			cardSvg: g
+		};
+		setTmpCardSvgLst(() => [...tmpCardSvgLst, newTmpCard]);
 	}
 
-	// const getNewCardSvg = () => {	//	返回新摸的牌的 svg g标签对象
-	// 	console.log('tmpque', tmpCardQue);
-		
-	// 	if (tmpCardQue.length) {
-	// 		const tail = tmpCardQue[0];
-	// 		console.log('yes, tail = ', tail);
-	// 		const tmp = tmpCardQue;
-	// 		tmp.shift();
-	// 		setTmpCardQue(tmp);
-	// 		return tail;
-	// 	}
-	// 	return null;
-	// }
-
-	const getNewCardSvg = useCallback(() => {	//	返回新摸的牌的 svg g标签对象
-		console.log('size', cardPile.length);
-
-		const newCardG = svg.selectAll('g').select(function (d, i) {
-			return i === cardPile.length - 1 ? this : null;
-		});
-		return newCardG;
-	}, [cardPile]);
-
 	const handleGetCard = (num: string, isBlack: boolean) => {
-		// let num = Math.floor(Math.random() * 13).toString();
-		// num = num === '12' ? '-' : num;
 		const newcard: Card = { num: num, isBlack };
-		// createNewCardSvg(newcard);
-		setNewCard(() => newcard);
 		console.log('newcard', newcard);
 
 		const tmp = [...cardPile, newcard].sort((a, b) => { //	数字升序，黑在白前
@@ -225,27 +151,22 @@ const BigCardContainer: React.FC<{}> = (props) => {
 		setCardPile(() => tmp);
 		console.log('牌堆', tmp);
 		
-		console.log('tmp', tmp.length, 'pile', cardPile.length, 'newCard', newCard);
-
+		let idx = 0;
 		for (let i = 0; i < tmp.length; ++i) {
 			if (tmp[i].num === num && tmp[i].isBlack === newcard.isBlack) {
-				setNewIndex(() => i);
+				idx = i;
 				break;
 			}
 		}
-
-		createNewCardSvg(newcard);
+		createNewCardSvg(newcard, idx);
 	}
 
 	const handleGainCard = (color: string) => {
-		// const color = Math.random() < 0.5? 'black' : 'white';
-		// const gid = Math.random().toString();
 		const pos1 = { x: containerW / 2 - cardSize.width - 5, y: -(svgH - cardSize.height) / 2 },
 			pos2 = { x: containerW / 2 + 5, y: -(svgH - cardSize.height) / 2 };
 		const pos = color === 'black' ? pos1 : pos2;
 		const g = svg
 			.append('g')
-			// .attr('id', gid)
 			.attr('x', pos.x)	//	g 标签赋予和卡牌相同的起始位置，以便使用transform移动
 			.attr('y', pos.y);
 		g
@@ -266,33 +187,30 @@ const BigCardContainer: React.FC<{}> = (props) => {
 			.attr('transform', `translate(${-(pos.x - (containerH - cardSize.height) / 2)}, ${-(pos.y - beginY)})`)
 			.ease(d3['easeCubicInOut'])
 
-		// handleGetCard(color === 'black');
-		socket.emit('handleGetNum', (data: string) => {
-
+		socket.emit('handleGetNum', (data: string) => {	//	向后端拿到新牌的 mock 数据
 			setTimeout(() => {
 				g.remove();
 				console.log('data', data);
 				handleGetCard(data, color === 'black');
-				// handleGetCard(color === 'black');
-				//	之前是测试的mock，但现在要把修改cardPile的逻辑提上来，否则在setTimeOut里还是之前的状态，拿不到最新的g标签
-				//	setNewCard、setCardPile 提到本函数做, getCard 函数废弃，因为本函数是真正从后端拿数据的函数
-				// handleGetCard(color === 'black');
-				// setTimeout(() => {
-				// 	//	insert 逻辑这里不该有，应该是猜牌结束后的逻辑
-				// 	handleInsert();
-				// }, 500)
 			}, 1000);
 		})
 
 	}
 
 	useEffect(() => {
-		console.log({ newCard, newIndex, cardPile });
-		handleGet(newCard, newIndex, cardPile, tmpCardQue);
-	}, [tmpCardQue])//newCard, newIndex, cardPile, 
+		pubsub.subscribe('removeTmpCard', () => {
+			setTmpCardSvgLst(() => []);	//	BigCardPile 组件通知该函数，说明 tmp 区的牌已经插入完毕，这里清空。
+		});	//	同时，由于下面的 hook 依赖了 svgCardLst，因此 BigCardPile 组件的 tmpCardSvgLst 也同步清空，达到目的。
+	}, []);
 
-	const handleGet = (card: Card, index: number, cardPile: Card[], tmpCardQue: []) => {
-		pubsub.publish('getInfo', { card, index, cardPile, tmpCardQue });
+	//	原先采用 props 传递，但 setState 是异步，导致子组件延迟获得数据。因此通过监听依赖，订阅函数之间通知子组件立即执行逻辑。
+	useEffect(() => {	//	当 tmp 区牌生成或清空时，同步给 BigCardPile 组件。
+		console.log(tmpCardSvgLst);
+		handleGet(tmpCardSvgLst);
+	}, [tmpCardSvgLst]);
+
+	const handleGet = (tmpCardSvgLst: SvgCard[]) => {
+		pubsub.publish('sync-tmp-card-list', tmpCardSvgLst);	//	同步 tmpCardSvgLst 到 BigCardPile 组件。
 	}
 
 	const handleInsert = () => {
@@ -319,13 +237,8 @@ const BigCardContainer: React.FC<{}> = (props) => {
 
 			<BigCardPile
 				svg={svg}
-				cardPile={cardPile}
 				cardSize={cardSize}
-				pileSize={pileSize}
-				newIndex={newIndex}
-				newCardSvg={newCardSvg}
-				getNewCardSvg={getNewCardSvg}
-				newCard={newCard} />
+				pileSize={pileSize} />
 
 			<div style={{
 				position: 'absolute',
@@ -375,7 +288,7 @@ const cardDivStyple = {
 interface SvgCard {
 	index: number;
 	card: Card;
-	cardSvg: any;
+	cardSvg: any;	//	svg selection 类型
 }
 
 export default BigCardContainer;

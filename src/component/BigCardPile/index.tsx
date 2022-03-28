@@ -11,11 +11,9 @@ const containerW = svgW * 0.9, containerH = svgH * 0.22;
 
 const BigCardPile: React.FC<BigCardPileProps> = (props) => {
 
-	const { svg, cardSize, pileSize, /*cardPile, newIndex,*/ getNewCardSvg } = props;
+	const { cardSize, pileSize } = props;
 	const [cardSvgLst, setCardSvgLst] = useState([] as Svg[]);
-	const [newIndex, setNewIndex] = useState(-1);
-	const [cardPile, setCardPile] = useState([] as any);
-	const [tmpCardQue, setTmpCardQue] = useState([] as any);
+	const [tmpCardSvgLst, setTmpCardSvgLst] = useState([] as SvgCard[]);
 
 const beginTmpX = (containerH - cardSize.height) / 2 - 2 * 8
 
@@ -35,18 +33,14 @@ const beginTmpX = (containerH - cardSize.height) / 2 - 2 * 8
 			.attr('transform', `translate(${x}, ${0})`);	//	transform 参数值是相对于最初的的坐标的
 	}
 
-	const insertCard = () => {
+	const insertCard = (newCardSvg: Svg, newIndex: number) => {
 		//	由于控制时序问题，创建svg的调用放在setTimeout里，因此
 		//	这里从props里取值会延后一个周期，不会立即取到新值。要用函数直接查找svg取
-		const newCardSvg = getNewCardSvg();	//	获得新摸的牌的 svg g标签对象
 		if (newCardSvg) {
 			console.log('newCard');
 		} else return;
 
-		// const newCardSvg = props.newCardSvg;
 		console.log('newCardSvg', newCardSvg, 'index=', newIndex);
-		
-		console.log('size', cardPile.length);
 		
 		let tmplst = cardSvgLst;
 		tmplst.splice(newIndex, 0, newCardSvg);
@@ -76,22 +70,26 @@ const beginTmpX = (containerH - cardSize.height) / 2 - 2 * 8
 		}
 	}
 
+
+	const insertCards = () => {
+		console.log('tmpCardSvgLst', tmpCardSvgLst);
+		
+		for (const card of tmpCardSvgLst) {	//	对 tmp 区的卡牌，以先后顺序每张插入，然后通知 container 组件清空、同步 tmpCardSvgLst。
+			insertCard(card.cardSvg, card.index);
+		}
+		pubsub.publish('removeTmpCard');
+	}
+
 	//	依赖牌堆对象，每次摸牌使牌堆更新时，重新发布 insert 函数，才能保证 getNewCardSvg 获得最新摸的牌
 	useEffect(() => {	
-		console.log('update cardpile', props.cardPile.length, 'newindex', newIndex);
-		
 		pubsub.unsubscribe('insertCard');
-		pubsub.subscribe('insertCard', insertCard);
-	}, [props.cardPile, newIndex]);
+		pubsub.subscribe('insertCard', insertCards);
+	}, [tmpCardSvgLst]);
 
 	useEffect(() => {
-		pubsub.subscribe('getInfo', (_, info: any) => {
-			console.log('info', info);
-			
-			const { card, index, cardPile, tmpCardQue } = info;
-			setCardPile(cardPile);
-			setNewIndex(index);
-			console.log('pubsub info', card, index, cardPile, tmpCardQue);
+		pubsub.subscribe('sync-tmp-card-list', (_, tmpCardSvgLst: SvgCard[]) => {
+			console.log('sync-tmp-card-list', tmpCardSvgLst);
+			setTmpCardSvgLst(tmpCardSvgLst);
 		})
 	}, []);
 
@@ -103,13 +101,14 @@ const beginTmpX = (containerH - cardSize.height) / 2 - 2 * 8
 
 interface BigCardPileProps {
 	svg: Svg;
-	cardPile: Card[];
 	cardSize: Size;
 	pileSize: Size;
-	newIndex: number;
-	getNewCardSvg: Function;
-	newCard: Card;
-	newCardSvg: any;
+}
+
+interface SvgCard {
+	index: number;
+	card: Card;
+	cardSvg: Svg;
 }
 
 export default BigCardPile;

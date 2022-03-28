@@ -26,6 +26,7 @@
   - [ ] 服务器存储牌堆: 用全局变量，存储 roomName -> cardPile 的映射，cardPile 对象分为黑白两个数组存储，（1个也行）
           具有 value、color、isShown(是否翻牌)、playerId(可过滤得出一个人的手牌,为null表示未发牌) 属性。
   - [ ] 牌摸完后，摸牌堆不再显示相关颜色的牌
+  - [ ] clean code for BigCards
 
   - [ ] BigHint 组件的淡入淡出，计时组件
   - [ ] 进入房间界面的完善
