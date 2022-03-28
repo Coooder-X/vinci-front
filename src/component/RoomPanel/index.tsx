@@ -35,7 +35,7 @@ const RoomPanel: React.FC<RoomPanelProps> = (props) => {
 			if (self?.id === room?.owner.id) {
 				setReady(true);
 				if (data.enable) {
-					success(data.msg);
+					// success(data.msg);
 					//	向后端发送开始请求（todo：后端收到后加锁，使玩家不能退出？没必要，请求后直接跳转）
 
 				} else

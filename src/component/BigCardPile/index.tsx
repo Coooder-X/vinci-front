@@ -26,10 +26,19 @@ const BigCardPile: React.FC<BigCardPileProps> = (props) => {
 	}
 
 	const insertCard = () => {
+		//	由于控制时序问题，创建svg的调用放在setTimeout里，因此
+		//	这里从props里取值会延后一个周期，不会立即取到新值。要用函数直接查找svg取
 		const newCardSvg = getNewCardSvg();	//	获得新摸的牌的 svg g标签对象
+		// const newCardSvg = props.newCardSvg;
+		console.log('newCardSvg', newCardSvg);
+		
+		console.log('size', cardPile.length);
+		
 		let tmplst = cardSvgLst;
 		tmplst.splice(newIndex, 0, newCardSvg);
 		setCardSvgLst(tmplst);	//	更新牌堆 svg g标签数组
+		console.log('cardSvgLst', cardSvgLst.length);
+		
 
 		if (newCardSvg) {
 			console.log('newCard');
@@ -59,6 +68,9 @@ const BigCardPile: React.FC<BigCardPileProps> = (props) => {
 
 	//	依赖牌堆对象，每次摸牌使牌堆更新时，重新发布 insert 函数，才能保证 getNewCardSvg 获得最新摸的牌
 	useEffect(() => {	
+		console.log('update cardpile', props.cardPile.length);
+		
+		pubsub.unsubscribe('insertCard');
 		pubsub.subscribe('insertCard', insertCard);
 	}, [props.cardPile]);
 
@@ -76,6 +88,7 @@ interface BigCardPileProps {
 	newIndex: number;
 	getNewCardSvg: Function;
 	newCard: Card;
+	newCardSvg: any;
 }
 
 export default BigCardPile;

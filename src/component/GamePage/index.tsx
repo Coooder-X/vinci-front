@@ -4,6 +4,7 @@ import { useLocation, useParams } from 'react-router-dom';
 import { getCurUser } from '../../utils/functions';
 import { success } from '../../utils/message';
 import socket from '../../utils/socket';
+import BigCardContainer from '../BigCardContainer';
 
 const GamePage: React.FC<{}> = (props) => {
 
@@ -43,7 +44,7 @@ const GamePage: React.FC<{}> = (props) => {
 
 	return <>
 		<div>
-			{gameRoomS.playerLst && gameRoomS.playerLst.map((player, idx) => (
+			{/* {gameRoomS.playerLst && gameRoomS.playerLst.map((player, idx) => (
 				<div
 					key={player.id}
 					style={{
@@ -57,7 +58,8 @@ const GamePage: React.FC<{}> = (props) => {
 						{'下一个'}
 					</Button>
 				</div>
-			))}
+			))} */}
+			<BigCardContainer></BigCardContainer>
 		</div>
 	</>
 }
