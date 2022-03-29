@@ -33,7 +33,7 @@ const Test: React.FC<{}> = (props) => {
 					onJoin={() => { }}
 				></RoomItem>
 			</div > */}
-			<BigCardContainer></BigCardContainer>
+			{/* <BigCardContainer></BigCardContainer> */}
 		</div>
 	)
 }

@@ -9,7 +9,7 @@ import BigCardContainer from '../BigCardContainer';
 const GamePage: React.FC<{}> = (props) => {
 
 	const [gameRoom, setGameRoom] = useState({} as GameRoom);
-	const [turnIdx, setTurnIdx] = useState(0);
+	const [turnIdx, setTurnIdx] = useState(-1);
 	const [gameRoomS, setGameRoomS] = useState({} as GameRoomSerializ);
 	// const location = useLocation();
 	// const roomName = location.state;
@@ -22,17 +22,28 @@ const GamePage: React.FC<{}> = (props) => {
 		socket.on('get-turns-info', (data: any) => {	//	接受服务端指示的出牌轮次广播
 			console.log('get-turns-info', data);
 			setTurnIdx(data.curIndex);
-			success('你的回合！');	//	此后改为 BigHint 组件显示
 		});
 		socket.emit('get-room-obj', roomName, (data: GameRoomSerializ) => {
 			console.log(data);
 			setGameRoomS(data);
 			//	此时房间内的每个玩家都获得了序列化的 GameRoom 对象，然后房主需要通知后台，让其发送玩家出牌轮次
-			if (curUser?.id === data.owner.id) {
-				socket.emit('qurey-turns-info', roomName);
-			}
+			// if (curUser?.id === data.owner.id) {
+			// 	socket.emit('qurey-turns-info', roomName);
+			// }
 		});
 	}, []);
+
+	useEffect(() => {
+		if (turnIdx === -1) return;
+		if (gameRoomS.playerLst && gameRoomS.playerLst[turnIdx].id === curUser?.id) {
+			console.log('你的回合');
+			success('你的回合！');	//	此后改为 BigHint 组件显示
+		}
+	}, [turnIdx, gameRoomS]);
+
+	const onFinishGetCard = () => {
+		socket.emit('finishGetCard', gameRoomS.name);
+	}
 
 	const notifyNext = () => {
 		socket.emit('notifyNext', {
@@ -44,7 +55,7 @@ const GamePage: React.FC<{}> = (props) => {
 
 	return <>
 		<div>
-			{/* {gameRoomS.playerLst && gameRoomS.playerLst.map((player, idx) => (
+			{gameRoomS.playerLst && gameRoomS.playerLst.map((player, idx) => (
 				<div
 					key={player.id}
 					style={{
@@ -58,8 +69,8 @@ const GamePage: React.FC<{}> = (props) => {
 						{'下一个'}
 					</Button>
 				</div>
-			))} */}
-			<BigCardContainer></BigCardContainer>
+			))}
+			<BigCardContainer playerId={curUser?.id} roomName={roomName} onFinishGetCard={onFinishGetCard}></BigCardContainer>
 		</div>
 	</>
 }

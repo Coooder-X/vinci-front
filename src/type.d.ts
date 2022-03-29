@@ -17,6 +17,12 @@ interface GameRoomSerializ {
     playerLst: Array<Player>;
 }
 
+interface GetCardReq {
+    roomName: string | undefined;
+    playerId: string | undefined;
+    isBlack: boolean;
+}
+
 interface Message {
     playerName: string;
     msg: string;

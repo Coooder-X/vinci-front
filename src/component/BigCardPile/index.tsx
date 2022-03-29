@@ -100,7 +100,6 @@ const beginTmpX = (containerH - cardSize.height) / 2 - 2 * 8
 }
 
 interface BigCardPileProps {
-	svg: Svg;
 	cardSize: Size;
 	pileSize: Size;
 }
