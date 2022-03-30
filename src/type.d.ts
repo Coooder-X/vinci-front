@@ -23,6 +23,11 @@ interface GetCardReq {
     isBlack: boolean;
 }
 
+interface GetCardRes {
+    num: string;
+    restCardNum: RestCardInfo;
+}
+
 interface Message {
     playerName: string;
     msg: string;
@@ -94,4 +99,9 @@ interface Size {
 interface Card {
     num: string;
     isBlack: Boolean;
+}
+
+interface RestCardInfo {
+    blackRest: number;
+    whiteRest: number;
 }

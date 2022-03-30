@@ -29,6 +29,7 @@ const BigCardContainer: React.FC<BigCardContainerProps> = (props) => {
 
 	const [cardPile, setCardPile] = useState([] as Card[]);
 	const [tmpCardSvgLst, setTmpCardSvgLst] = useState([] as SvgCard[]);
+	const [restCardNum, setRestCardNum] = useState({ blackRest: 13, whiteRest: 13 } as RestCardInfo)
 
 	useEffect(() => {
 		const div = d3.select("#CardPanel");
@@ -214,8 +215,9 @@ const BigCardContainer: React.FC<BigCardContainerProps> = (props) => {
 			roomName: props.roomName,
 			isBlack: color === 'black'
 		}
-		socket.emit('handleGetNum',  getCardReq, (data: string) => {	//	向后端拿到新牌的 mock 数据
-			handleSortCard(data, color === 'black');
+		socket.emit('handleGetNum', getCardReq, (data: GetCardRes) => {	//	向后端拿到新牌的 mock 数据
+			handleSortCard(data.num, color === 'black');
+			setRestCardNum(data.restCardNum);
 		});
 
 		setTimeout(() => {
@@ -234,10 +236,10 @@ const BigCardContainer: React.FC<BigCardContainerProps> = (props) => {
 		console.log(tmpCardSvgLst);
 		handleSyncTmpCard(tmpCardSvgLst);
 
-		if (tmpCardSvgLst.length === 4) {	//	开局刚摸完牌，通知后端完成
+		if (tmpCardSvgLst.length === 4) {	//	开局刚摸完牌，通知后端完成	(这个不能作为开局flag)
 			setTimeout(props.onFinishGetCard, 2500);	//	等插入牌结束，再通知后端完成
 		} else if (tmpCardSvgLst.length === 1) {	//	局间摸完牌，进入猜牌逻辑
-
+			// props.notifyNext();
 		}
 	}, [tmpCardSvgLst]);
 
@@ -279,24 +281,27 @@ const BigCardContainer: React.FC<BigCardContainerProps> = (props) => {
 				backgroundColor: 'silver'
 				// backgroundColor: 'transparent'
 			}}>
-				{/* <Button onClick={handleGainCard}>{'get card'}</Button> */}
-				<div
-					onClick={() => { handleGainCard('black'); }}
-					style={{
-						...cardDivStyple,
-						backgroundColor: 'black',
-						position: 'relative',
-						transform: `translate(calc(-50% - ${0.5 * cardSize.width}px - 5px), -100%)`,
-					}}></div>
-				<div
-					onClick={() => { handleGainCard('white'); }}
-					style={{
-						...cardDivStyple,
-						backgroundColor: 'white',
-						border: '1px solid black',
-						position: 'relative',
-						transform: `translate(calc(-50% - ${0.5 * cardSize.width}px + 5px), -100%)`,
-					}}></div>
+				{restCardNum.blackRest > 0 &&
+					<div
+						onClick={() => { handleGainCard('black'); }}
+						style={{
+							...cardDivStyple,
+							backgroundColor: 'black',
+							position: 'relative',
+							transform: `translate(calc(-50% - ${0.5 * cardSize.width}px - 5px), -100%)`,
+						}}>
+					</div>}
+				{restCardNum.whiteRest > 0 &&
+					<div
+						onClick={() => { handleGainCard('white'); }}
+						style={{
+							...cardDivStyple,
+							backgroundColor: 'white',
+							border: '1px solid black',
+							position: 'relative',
+							transform: `translate(calc(-50% - ${0.5 * cardSize.width}px + 5px), -100%)`,
+						}}>
+					</div>}
 			</div>
 			<div id='CardPanel' className='big-card-container' />
 
@@ -320,6 +325,7 @@ interface BigCardContainerProps {
 	playerId: string | undefined;
 	roomName: string | undefined;
 	onFinishGetCard: Function;
+	notifyNext: Function;
 }
 
 interface SvgCard {
@@ -336,19 +342,19 @@ export default BigCardContainer;
  * - UI 部分: 摸牌时，牌堆为屏幕中心的两个 div 卡片，点击后从 div 处创建一个卡牌 svg，同时在暂存区生成一个透明卡牌，
  * 			透明牌已经获了取牌面。假牌移动到暂存区，然后销毁，同时透明的真牌淡入显现。此后执行插入逻辑，真牌被 BigCardPile
  * 			逻辑插入手牌堆。
- * 			
+ *
  * - 数据部分：摸牌时，点击 div 从后端获取牌面数值，创建卡牌 svg。开局时点击4次，则生成4个。每次卡牌生成在暂存区，
  * 			都会更新到 tmpCardSvgLst 数组（存放在 tmp 区的卡牌，包括每个卡牌对应的手牌堆 index 和 svg 对象）。
  * 			同时，依赖 tmpCardSvgLst 的 hook 会通过 pubsub 通知子组件，将 tmpCardSvgLst 同步到子组件的相同数据结构，
  * 			当需要插入时，子组件依此操作 tmpCardSvgLst 里卡牌 svg，执行插入动画，最后通知本组件清空 tmpCardSvgLst，同时同步自己。
  * 			手牌的排序逻辑在本组件执行，子组件通过维护自己的 svgList，和 posList，将每个手牌和坐标对应，插入时通过 newIndex 计算坐标。
- * 
+ *
  * - 此前版本废弃原因：
  * 		1、此前使用 2个 svg 对象作为发牌堆，点击获取新牌，并卡牌 svg 从创建到插入都是同一个。
  * 				存在问题：卡牌初始位置因黑白导致不同，会导致插入手牌时，translate 的 x 坐标要根据颜色判断，复杂度和难度大大提高。
  * 						因此，使用假卡牌分离两段动画。
  * 						更麻烦的是，svg 添加事件需要在 hook 中初始化，而事件函数本身是依赖数据变化的，svg 添加过后函数就不再变化。
- * 				
+ *
  * 		2、此前使用 props 给子组件传递数据，如 newIndex，newCardSvg，cardPile，但这些值的 setState 是异步的，不会立即执行。
  * 				因此子组件获得的值比本组件慢一个生命周期，导致错误。所以，改为使用现在的方式：需要传递的数据封装到一起，通过
  * 				useEffect 监听它的变化，一旦 setSate，就通过 pubsub 传递给子组件，而不经过 props。子组件修改后，也通过 pubsub 同步过来。

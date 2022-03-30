@@ -11,8 +11,7 @@ const GamePage: React.FC<{}> = (props) => {
 	const [gameRoom, setGameRoom] = useState({} as GameRoom);
 	const [turnIdx, setTurnIdx] = useState(-1);
 	const [gameRoomS, setGameRoomS] = useState({} as GameRoomSerializ);
-	// const location = useLocation();
-	// const roomName = location.state;
+
 	const param = useParams();
 	const roomName = param.roomName;
 	console.log('gamepage', roomName);
@@ -70,7 +69,7 @@ const GamePage: React.FC<{}> = (props) => {
 					</Button>
 				</div>
 			))}
-			<BigCardContainer playerId={curUser?.id} roomName={roomName} onFinishGetCard={onFinishGetCard}></BigCardContainer>
+			<BigCardContainer notifyNext={notifyNext} playerId={curUser?.id} roomName={roomName} onFinishGetCard={onFinishGetCard}></BigCardContainer>
 		</div>
 	</>
 }
