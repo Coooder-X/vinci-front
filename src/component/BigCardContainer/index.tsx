@@ -281,7 +281,7 @@ const BigCardContainer: React.FC<BigCardContainerProps> = (props) => {
 						transform: `translate(-50%, -100%)`,
 						padding: '1%',
 						border: '1px black solid',
-						borderRadius: '5px',
+						borderRadius: '10px',
 						backgroundColor: 'white'
 						// backgroundColor: 'transparent'
 					}}>
