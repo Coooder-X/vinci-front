@@ -5,7 +5,7 @@ import * as d3 from 'd3';
 import pubsub from 'pubsub-js';
 import './index.css';
 import socket from '../../utils/socket';
-import { getCurUser } from '../../utils/functions';
+import { GameState } from '../../utils/GameState';
 
 let svg: d3.Selection<SVGSVGElement, unknown, HTMLElement, any> = d3.select('body');
 const svgW = window.innerWidth || document.documentElement.clientWidth || document.getElementsByTagName('body')[0].clientWidth;
@@ -235,40 +235,30 @@ const BigCardContainer: React.FC<BigCardContainerProps> = (props) => {
 	useEffect(() => {	//	当 tmp 区牌生成或清空时，同步给 BigCardPile 组件。
 		console.log(tmpCardSvgLst);
 		handleSyncTmpCard(tmpCardSvgLst);
-
-		if (tmpCardSvgLst.length === 4) {	//	开局刚摸完牌，通知后端完成	(这个不能作为开局flag)
-			setTimeout(props.onFinishGetCard, 2500);	//	等插入牌结束，再通知后端完成
-		} else if (tmpCardSvgLst.length === 1) {	//	局间摸完牌，进入猜牌逻辑
-			// props.notifyNext();
-		}
 	}, [tmpCardSvgLst]);
 
 	const handleSyncTmpCard = (tmpCardSvgLst: SvgCard[]) => {
 		pubsub.publish('sync-tmp-card-list', tmpCardSvgLst);	//	同步 tmpCardSvgLst 到 BigCardPile 组件。
 	}
 
-	const handleInsert = () => {
+	const handleInsert = () => {	//	执行插入手牌后，通知父组件改变状态（后续需要修改，因为插入在猜牌逻辑后，而且插入后可能再猜牌）
 		pubsub.publish('insertCard');
+		if (props.gameState === GameState.INIT_CARD) {
+			props.onFinishInitCard();
+		} else if (props.gameState === GameState.GET_CARD) {
+			props.onFinishGetCard();
+		}
 	}
 
 	return (
 		<>
 			<div>
-				{/* <Button onClick={handleGetCard}>
-					{'get'}
-				</Button> */}
-				{/* <Button onClick={() => {
-					// d3.select('#123');
-					const div = d3.select("#asd");
-					console.log(div);
-					
-				}}>{'test'}</Button> */}
 				<Button onClick={handleInsert}>
 					{'insert'}
 				</Button>
-				{/* <Button onClick={handleGainCard}>{'get card'}</Button> */}
 			</div>
 
+			{props.restCardInfo.blackRest + ' ' + props.restCardInfo.whiteRest}
 			<BigCardPile
 				cardSize={cardSize}
 				pileSize={pileSize} />
@@ -281,27 +271,44 @@ const BigCardContainer: React.FC<BigCardContainerProps> = (props) => {
 				backgroundColor: 'silver'
 				// backgroundColor: 'transparent'
 			}}>
-				{restCardNum.blackRest > 0 &&
+				<div
+					className={
+						(props.gameState === GameState.GET_CARD || props.gameState === GameState.INIT_CARD) ? 'fadeIn' : 'fadeOut'}
+					style={{
+						position: 'absolute',
+						left: '50%',
+						top: '50%',
+						transform: `translate(-50%, -100%)`,
+						padding: '1%',
+						border: '1px black solid',
+						borderRadius: '5px',
+						backgroundColor: 'white'
+						// backgroundColor: 'transparent'
+					}}>
+					{/* 第一个在 props 里的剩余判断是父组件在摸牌前请求获得的剩余数量，【保证摸之前，无牌的堆不显示】。
+					第二个在本组件 state 里的是每次摸完一张后请求获得的剩余数量，【保证摸之后，无牌的堆不显示】。 */}
 					<div
 						onClick={() => { handleGainCard('black'); }}
 						style={{
 							...cardDivStyple,
+							visibility: (props.restCardInfo.blackRest > 0 && restCardNum.blackRest) ? 'visible' : 'hidden',
 							backgroundColor: 'black',
 							position: 'relative',
-							transform: `translate(calc(-50% - ${0.5 * cardSize.width}px - 5px), -100%)`,
+							transform: `translate(calc(-50% - ${0.5 * cardSize.width}px - 5px), 0%)`,	//	-100%
 						}}>
-					</div>}
-				{restCardNum.whiteRest > 0 &&
+					</div>
 					<div
 						onClick={() => { handleGainCard('white'); }}
 						style={{
 							...cardDivStyple,
+							visibility: (props.restCardInfo.whiteRest > 0 && restCardNum.whiteRest) ? 'visible' : 'hidden',
 							backgroundColor: 'white',
 							border: '1px solid black',
 							position: 'relative',
-							transform: `translate(calc(-50% - ${0.5 * cardSize.width}px + 5px), -100%)`,
+							transform: `translate(calc(-50% - ${0.5 * cardSize.width}px + 5px), 0%)`,	//	-100%
 						}}>
-					</div>}
+					</div>
+				</div>
 			</div>
 			<div id='CardPanel' className='big-card-container' />
 
@@ -324,8 +331,10 @@ const cardDivStyple = {
 interface BigCardContainerProps {
 	playerId: string | undefined;
 	roomName: string | undefined;
+	onFinishInitCard: Function;
 	onFinishGetCard: Function;
-	notifyNext: Function;
+	restCardInfo: RestCardInfo;
+	gameState: GameState;
 }
 
 interface SvgCard {

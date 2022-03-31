@@ -1,6 +1,7 @@
 import { Button } from 'antd';
 import React, { useEffect, useState } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+import { GameState } from '../../utils/GameState';
 import { getCurUser } from '../../utils/functions';
 import { success } from '../../utils/message';
 import socket from '../../utils/socket';
@@ -8,9 +9,10 @@ import BigCardContainer from '../BigCardContainer';
 
 const GamePage: React.FC<{}> = (props) => {
 
-	const [gameRoom, setGameRoom] = useState({} as GameRoom);
 	const [turnIdx, setTurnIdx] = useState(-1);
 	const [gameRoomS, setGameRoomS] = useState({} as GameRoomSerializ);
+	const [gameState, setGameState] = useState(GameState.INIT_CARD);
+	const [restCardInfo, setRestCardInfo] = useState({blackRest: 13, whiteRest: 13} as RestCardInfo)
 
 	const param = useParams();
 	const roomName = param.roomName;
@@ -25,23 +27,51 @@ const GamePage: React.FC<{}> = (props) => {
 		socket.emit('get-room-obj', roomName, (data: GameRoomSerializ) => {
 			console.log(data);
 			setGameRoomS(data);
-			//	此时房间内的每个玩家都获得了序列化的 GameRoom 对象，然后房主需要通知后台，让其发送玩家出牌轮次
-			// if (curUser?.id === data.owner.id) {
-			// 	socket.emit('qurey-turns-info', roomName);
-			// }
 		});
 	}, []);
+
+	useEffect(() => {
+		if (gameState === GameState.INIT_CARD) {
+			console.log('init');
+			socket.emit('getRestCardInfo', roomName, (data: RestCardInfo) => {
+				setRestCardInfo(data);
+				console.log('setRestCardInfo', data);
+			});
+		} else if (gameState === GameState.FINISH_INIT) {
+			setTimeout(finishInitCard, 2500);	//	通知服务端所有人已经结束开局摸牌
+		} else if (gameState === GameState.GET_CARD) {
+			socket.emit('getRestCardInfo', roomName, (data: RestCardInfo) => {
+				setRestCardInfo(data);
+				console.log('setRestCardInfo', data);
+			});
+		} else if (gameState === GameState.FINISH_CET_CARD) {
+			setTimeout(notifyNext, 2500);	//	通知服务端通知下一个玩家
+		}
+	}, [gameState]);
 
 	useEffect(() => {
 		if (turnIdx === -1) return;
 		if (gameRoomS.playerLst && gameRoomS.playerLst[turnIdx].id === curUser?.id) {
 			console.log('你的回合');
 			success('你的回合！');	//	此后改为 BigHint 组件显示
+			setGameState(GameState.GET_CARD);
 		}
 	}, [turnIdx, gameRoomS]);
 
-	const onFinishGetCard = () => {
+	const finishInitCard = () => {
 		socket.emit('finishGetCard', gameRoomS.name);
+		setGameState(GameState.WAITING);
+	}
+
+	/**
+	 * on 开头的关于游戏状态的函数，都是传给子组件，子组件执行完当前状态逻辑后，通知本组件改变游戏状态
+	 */
+	const onFinishInitCard = () => {
+		setGameState(GameState.FINISH_INIT);
+	}
+
+	const onFinishGetCard = () => {
+		setGameState(GameState.FINISH_CET_CARD);
 	}
 
 	const notifyNext = () => {
@@ -69,7 +99,14 @@ const GamePage: React.FC<{}> = (props) => {
 					</Button>
 				</div>
 			))}
-			<BigCardContainer notifyNext={notifyNext} playerId={curUser?.id} roomName={roomName} onFinishGetCard={onFinishGetCard}></BigCardContainer>
+			<BigCardContainer
+				playerId={curUser?.id}
+				roomName={roomName}
+				onFinishInitCard={onFinishInitCard}
+				onFinishGetCard={onFinishGetCard}
+				gameState={gameState}
+				restCardInfo={restCardInfo}>
+			</BigCardContainer>
 		</div>
 	</>
 }

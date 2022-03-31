@@ -34,3 +34,12 @@
     height: 100%;
     background-color: transparent;
 }
+
+.fadeOut{
+    opacity:0;
+    transition: height 0.5s 0.5s, opacity 0.5s;
+}
+.fadeIn{
+    opacity:1;
+    transition: opacity 0.5s 0.5s;
+}
